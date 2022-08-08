@@ -108,4 +108,5 @@ bind '\"' split-window -c \"#{pane_current_path}\"
 bind % split-window -h -c \"#{pane_current_path}\"
 "
 echo "$tmux_conf" > ~/.tmux.conf
-
+echo
+echo "Now refresh or restart your terminal session!"

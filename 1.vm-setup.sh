@@ -42,9 +42,7 @@ echo "The pk10 fonts have been installed. You may need to manually set them in y
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 echo 'source ~/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme' >> ~/.zshrc
 echo
+echo
 echo "Your default shell has been changed. You need to log out completely and back in for it to take effect!"
 echo "When logging back in, open your terminal and configure P10K how you like it."
-echo
-echo "Now run add-configs.sh to install tmux, vim, alias configs!"
-echo
 exit
