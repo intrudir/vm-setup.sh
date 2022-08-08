@@ -22,7 +22,7 @@ sudo chsh -s $(which zsh) $(whoami)
 check_if_success
 
 # Install OhMyZsh!
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+echo exit | sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # install necessary fonts for powerlevel10k
 wget -N https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
