@@ -14,7 +14,7 @@ sudo -l
 check_if_success
 
 # install stuff
-sudo apt install dnsutils net-tools curl git tmux zsh wget
+sudo apt install dnsutils net-tools curl git tmux zsh wget fontconfig
 check_if_success
 
 # change default shell for user
