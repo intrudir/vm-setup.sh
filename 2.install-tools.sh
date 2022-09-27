@@ -202,3 +202,6 @@ go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-server@lates
 
 # amass
 go install -v github.com/OWASP/Amass/v3/...@master
+
+# ffuf
+go install github.com/ffuf/ffuf@latest
