@@ -83,6 +83,7 @@ alias uec='python3 -c \"import sys, urllib.parse as ul; print(ul.quote_plus(sys.
 # other
 export EDITOR=vim
 "
+
 echo "$zsh_rc" >> ~/.zshrc
 
 # CTF tmux.conf
@@ -152,7 +153,7 @@ case $OS in
 esac
 
 # Install the latest golang
-LATEST_GO_VERSION=$(curl "https://go.dev/VERSION?m=text")
+LATEST_GO_VERSION="$(curl "https://go.dev/VERSION?m=text")"
 GO_TAR="$LATEST_GO_VERSION.$OS-$ARCH.tar.gz"
 LATEST_GO_DOWNLOAD="https://golang.org/dl/$GO_TAR"
 
@@ -168,11 +169,12 @@ tar -xf "$GO_TAR"
 GOLANG_PATH='
 
 # golang stuff
-export GOROOT="/home/$USER/go"
-export GOPATH="/home/$USER/go/packages"
+export GOROOT="$HOME/go"
+export GOPATH="$HOME/go/packages"
 export PATH="$PATH:$GOROOT/bin:$GOPATH/bin"
 
 '
+
 echo "$GOLANG_PATH" >> ~/.zshrc
 
 source ~/.zshrc
