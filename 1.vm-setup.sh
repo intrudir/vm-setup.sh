@@ -14,7 +14,7 @@ sudo -l
 check_if_success
 
 # install stuff
-sudo apt install dnsutils net-tools curl git tmux zsh wget fontconfig
+sudo apt install dnsutils net-tools curl git tmux zsh wget fontconfig python3-pip python3-venv gcc
 check_if_success
 
 # change default shell for user
