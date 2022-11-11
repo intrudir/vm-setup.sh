@@ -205,3 +205,25 @@ go install -v github.com/OWASP/Amass/v3/...@master
 
 # ffuf
 go install github.com/ffuf/ffuf@latest
+
+# Katana
+go install github.com/projectdiscovery/katana/cmd/katana@latest
+
+# install dnsx
+go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+
+# make tools directory
+sudo mkdir -p /opt/tools
+sudo chown $(whoami) -R /opt/tools
+
+# Install dnsgen
+cd /opt/tools
+git clone https://github.com/ProjectAnte/dnsgen
+cd dnsgen
+python3 -m venv .venv
+source ./.venv/bin/activate
+python3 -m pip install dnsgen
+deactivate
+
+
+
