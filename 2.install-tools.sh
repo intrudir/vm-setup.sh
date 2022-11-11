@@ -1,7 +1,62 @@
 #!/bin/bash
 
+function check_if_success () {
+    if [ $? -eq 0 ]; then
+        echo "OK"
+    else
+        echo "Something went wrong. Stopping here so you can check the error."
+        exit
+    fi
+}
+
+# Install VIM plug
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+check_if_success
+
 # CTF vim config
 vim_rc="
+\" Specify a directory for plugins
+\" - For Neovim: stdpath('data') . '/plugged'
+\" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin()
+
+Plug 'junegunn/vim-easy-align'
+Plug 'preservim/nerdtree'
+Plug 'simnalamburt/vim-mundo'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'preservim/nerdcommenter'
+Plug 'jalvesaq/vimcmdline'
+
+call plug#end()
+
+\" airline stuff
+set laststatus=2
+let g:airline_theme='simple'
+
+\" NERDTree stuff
+\" NERDTree remaps
+nnoremap <leader>n :NERDTreeFocus<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+
+\" Mundo stuff
+\" Enable persistent undo so that undo history persists across vim sessions
+set undofile
+set undodir=~/.vim/undo
+
+\" Mundo remaps
+nnoremap <F5> :MundoToggle<CR>
+
+\" easy-align
+\" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+\" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
 \" turn on syntax highlight
 syntax on
 
@@ -59,11 +114,11 @@ alias tmn='tmux new -s'
 
 # binaries
 alias vi='vim'
-alias ngrok='/opt/ngrok'
+alias ngrok='/opt/tools/ngrok'
 
 # web
-alias secretfinder='python3 /opt/SecretFinder/SecretFinder.py'
-alias linkfinder='python3 /opt/LinkFinder/linkfinder.py'
+alias secretfinder='python3 /opt/tools/SecretFinder/SecretFinder.py'
+alias linkfinder='python3 /opt/tools/LinkFinder/linkfinder.py'
 
 # my_tools
 alias bypassfuzzer='python3 ~/my_tools/bypassfuzzer/bypassfuzzer.py'
@@ -86,6 +141,12 @@ export EDITOR=vim
 
 echo "$zsh_rc" >> ~/.zshrc
 
+# Install tmux themes
+sudo mkdir /opt/tmux && cd /opt/tmux
+check_if_success
+sudo git clone https://github.com/wfxr/tmux-power.git
+cd ~
+
 # CTF tmux.conf
 tmux_conf="
 ### enable mouse:
@@ -107,6 +168,8 @@ bind c new-window -c \"#{pane_current_path}\"
 ### New panes open in current path
 bind '\"' split-window -c \"#{pane_current_path}\"
 bind % split-window -h -c \"#{pane_current_path}\"
+
+run-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"
 "
 echo "$tmux_conf" > ~/.tmux.conf
 echo
@@ -162,9 +225,11 @@ cd "/home/$USER"
 
 printf "Downloading ${LATEST_GO_DOWNLOAD}\n\n";
 curl -OJ -L --progress-bar "$LATEST_GO_DOWNLOAD"
+check_if_success
 
 printf "Extracting file...\n"
 tar -xf "$GO_TAR"
+check_if_success
 
 GOLANG_PATH='
 
@@ -187,6 +252,9 @@ go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
 
 # nuclei templates
 nuclei -update-templates
+
+# gron - make JSON greppable!
+go install github.com/tomnomnom/gron@latest
 
 # httpx
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
@@ -215,15 +283,22 @@ go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
 # make tools directory
 sudo mkdir -p /opt/tools
 sudo chown $(whoami) -R /opt/tools
+check_if_success
 
 # Install dnsgen
 cd /opt/tools
 git clone https://github.com/ProjectAnte/dnsgen
+check_if_success
+
 cd dnsgen
 python3 -m venv .venv
 source ./.venv/bin/activate
 python3 -m pip install dnsgen
+check_if_success
 deactivate
 
-
+# install zsh autosuggestions and syntax highlighting
+sudo apt install zsh-autosuggestions zsh-syntax-highlighting
+echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
 
