@@ -10,12 +10,13 @@ function check_if_success () {
 # Install VIM plug
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 check_if_success
+
 # CTF vim config
-vim_rc=""
+vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/vimrc)
 echo "$vim_rc" > ~/.vimrc
 
 # CTF shell aliases
-zsh_rc=""
+zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-aliases)
 echo "$zsh_rc" >> ~/.zshrc
 
 # Install tmux themes
@@ -25,7 +26,7 @@ sudo git clone https://github.com/wfxr/tmux-power.git
 cd ~
 
 # CTF tmux.conf
-tmux_conf=""
+tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-tmux.conf)
 echo "$tmux_conf" > ~/.tmux.conf
 
 echo
