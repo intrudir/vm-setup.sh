@@ -1,0 +1,32 @@
+### my aliases
+# required to sudo an aliased command
+alias sudo='sudo '
+
+# tmux
+alias tml='tmux ls'
+alias tma='tmux a -t'
+alias tmn='tmux new -s'
+
+# binaries
+alias vi='vim'
+alias ngrok='/opt/tools/ngrok'
+
+# web
+alias secretfinder='python3 /opt/tools/SecretFinder/SecretFinder.py'
+alias linkfinder='python3 /opt/tools/LinkFinder/linkfinder.py'
+alias bypassfuzzer='python3 /opt/tools/bypassfuzzer/bypassfuzzer.py'
+
+# Proxy stuff
+alias burl='curl -x 127.0.0.1:8080 -k'
+alias murl="curl -x 127.0.0.1:8080 -k -H $'X-Pwnfox-Color: magenta'"
+alias proxypy='export REQUESTS_CA_BUNDLE="path/to/burpcert.pem"; export HTTP_PROXY="http://127.0.0.1:8080"; export HTTPS_PROXY="http://127.0.0.1:8080"'
+alias proxypy_unset='unset REQUESTS_CA_BUNDLE; unset HTTP_PROXY; unset HTTPS_PROXY'
+
+# shortcuts
+alias POST='curl -d @-'
+alias apachelogs="tail -f -n 10 /var/log/apache2/access.log"
+alias udc='python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus(sys.argv[1]))"'
+alias uec='python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))"'
+
+# other
+export EDITOR=vim

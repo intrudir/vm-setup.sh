@@ -1,0 +1,82 @@
+" Specify a directory for plugins
+" - For Neovim: stdpath('data') . '/plugged'
+" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin()
+
+Plug 'junegunn/vim-easy-align'
+Plug 'preservim/nerdtree'
+Plug 'simnalamburt/vim-mundo'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'preservim/nerdcommenter'
+Plug 'jalvesaq/vimcmdline'
+
+call plug#end()
+
+" airline stuff
+set laststatus=2
+let g:airline_theme='simple'
+
+" NERDTree stuff
+" NERDTree remaps
+nnoremap <leader>n :NERDTreeFocus<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+
+" Mundo stuff
+" Enable persistent undo so that undo history persists across vim sessions
+set undofile
+set undodir=~/.vim/undo
+
+" Mundo remaps
+nnoremap <F5> :MundoToggle<CR>
+
+" easy-align
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
+" turn on syntax highlight
+syntax on
+
+" turn on line numbers
+set number
+
+" make backspace work as intended in edit mode
+set backspace=indent,eol,start
+
+" Indentation
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+
+" Auto indent what you can
+set autoindent
+
+" Display
+set ls=2
+set noshowmode
+set showcmd
+set modeline
+set ruler
+set title
+set nu
+
+" History
+set history=50
+
+" Command shortcuts
+" sort the buffer removing duplicates
+nmap <Leader>s :%!sort -u --version-sort<CR>
+
+" Base64 decode word under cursor
+nmap <Leader>b :!echo <C-R><C-W> \| base64 -d<CR>
+
+" Pretty print XML
+nmap <Leader>x :!xmllint --format -
