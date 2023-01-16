@@ -18,6 +18,7 @@ echo "$vim_rc" > ~/.vimrc
 # CTF shell aliases
 zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-aliases)
 echo "$zsh_rc" >> ~/.zshrc
+echo "$zsh_rc" >> ~/.bash_aliases
 
 # Install tmux themes
 sudo mkdir /opt/tmux && cd /opt/tmux
