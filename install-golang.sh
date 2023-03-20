@@ -59,3 +59,4 @@ export PATH=\"\$PATH:\$GOROOT/bin:\$GOPATH/bin\"
 "
 echo "$golang_paths" >> ~/.zshrc
 echo "$golang_paths" >> ~/.bashrc
+rm "$GO_TAR"
