@@ -37,20 +37,20 @@ check_if_success
 # Install configs and dependencies for them if any
 wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-configs.sh
 chmod +x ./install-configs.sh
-./install-configs.sh -t ctf
+./install-configs.sh -t "$type"
 check_if_success
 rm ./install-configs.sh
 
 # Install the latest golang
-# wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-golang.sh
-# chmod +x ./install-golang.sh
-# ./install-golang.sh
-# check_if_success
-# rm ./install-golang.sh
-# source ~/.zshrc
+wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-golang.sh
+chmod +x ./install-golang.sh
+./install-golang.sh
+check_if_success
+rm ./install-golang.sh
+exec zsh
 
-# # anew
-# go install github.com/tomnomnom/anew@latest
+# anew
+go install github.com/tomnomnom/anew@latest
 
 # # nuclei
 # go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
