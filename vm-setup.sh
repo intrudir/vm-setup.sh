@@ -39,7 +39,7 @@ sudo apt install zsh-autosuggestions zsh-syntax-highlighting
 check_if_success
 
 STRING="/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-if ! grep -q "$STRING" "~/.zshrc" ; then
+if ! grep -q "$STRING" ~/.zshrc ; then
     echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
     echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
 fi
@@ -58,64 +58,15 @@ chmod +x ./install-golang.sh
 check_if_success
 # rm ./install-golang.sh
 
-if [ -n "$ZSH_VERSION" ]; then
-    source ~/.zshrc
-elif [ -n "$BASH_VERSION" ]; then
-    source ~/.bashrc
+if ! [ -n "$ZSH_VERSION" ]; then
+    source ~/.zshrc 2>/dev/null
+elif ! [ -n "$BASH_VERSION" ]; then
+    source ~/.bashrc 2>/dev/null
 fi
 
-# anew
-go install github.com/tomnomnom/anew@latest
-
-# # nuclei
-# go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
-
-# # nuclei templates
-# nuclei -update-templates
-
-# # gron - make JSON greppable!
-# go install github.com/tomnomnom/gron@latest
-
-# # httpx
-# go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
-
-# # httprobe
-# go install github.com/tomnomnom/httprobe@latest
-
-# # interactsh client
-# go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest
-
-# # interactsh server
-# go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-server@latest
-
-# # amass
-# go install -v github.com/OWASP/Amass/v3/...@master
-
-# # ffuf
-# go install github.com/ffuf/ffuf@latest
-
-# # Katana
-# go install github.com/projectdiscovery/katana/cmd/katana@latest
-
-# # install dnsx
-# go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
-
-# # make tools directory
-# sudo mkdir -p /opt/tools
-# sudo chown $(whoami) -R /opt/tools
-# check_if_success
-
-# # Install dnsgen
-# cd /opt/tools
-# git clone https://github.com/ProjectAnte/dnsgen
-# check_if_success
-
-# cd dnsgen
-# python3 -m venv .venv
-# source ./.venv/bin/activate
-# python3 -m pip install dnsgen
-# check_if_success
-# deactivate
-
-
-
+# install tools
+# wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-tools.sh
+chmod +x ./install-tools.sh
+./install-tools.sh -t "$type"
+check_if_success
+# rm ./install-tools.sh
