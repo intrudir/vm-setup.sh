@@ -34,6 +34,12 @@ echo "vm-setup VM type: $type";
 sudo apt install dnsutils net-tools curl git tmux zsh wget fontconfig python3-pip python3-venv gcc
 check_if_success
 
+# install zsh autosuggestions and syntax highlighting
+sudo apt install zsh-autosuggestions zsh-syntax-highlighting
+check_if_success
+echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
+
 # Install configs and dependencies for them if any
 wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-configs.sh
 chmod +x ./install-configs.sh
@@ -47,7 +53,12 @@ chmod +x ./install-golang.sh
 ./install-golang.sh
 check_if_success
 rm ./install-golang.sh
-exec zsh
+
+if [ -n "$ZSH_VERSION" ]; then
+    source ~/.zshrc
+elif [ -n "$BASH_VERSION" ]; then
+    source ~/.bashrc
+fi
 
 # anew
 go install github.com/tomnomnom/anew@latest
@@ -102,10 +113,5 @@ go install github.com/tomnomnom/anew@latest
 # check_if_success
 # deactivate
 
-# # install zsh autosuggestions and syntax highlighting
-# sudo apt install zsh-autosuggestions zsh-syntax-highlighting
-# check_if_success
-# echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
-# echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
 
 
