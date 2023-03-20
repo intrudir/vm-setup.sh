@@ -95,3 +95,6 @@ chmod +x ./install-tools.sh
 ./install-tools.sh -t "$type"
 check_if_success
 # rm ./install-tools.sh
+
+echo "Be sure to exit your terminal and start a fresh one."
+echo "DONE"

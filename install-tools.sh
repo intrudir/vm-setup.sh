@@ -60,44 +60,55 @@ sudo chown $(whoami) -R /opt/tools
 check_if_success
 
 # anew
+echo -e \\n"Installing Anew"
 go install github.com/tomnomnom/anew@latest
 
 # ffuf
+echo -e \\n"Installing FFuF"
 go install github.com/ffuf/ffuf@latest
 
 # gron - make JSON greppable!
+echo -e \\n"Installing Gron"
 go install github.com/tomnomnom/gron@latest
 
 # httpx
+echo -e \\n"Installing HTTPx"
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 
 # Katana
+echo -e \\n"Installing Katana"
 go install github.com/projectdiscovery/katana/cmd/katana@latest
 
 # Only install these if type == full
 if [[ $type == 'full' ]]; then
     # httprobe
+    echo -e \\n"Installing httprobe"
     go install github.com/tomnomnom/httprobe@latest
 
     # interactsh client
+    echo -e \\n"Installing interact.sh server & client"
     go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest
 
     # interactsh server
     go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-server@latest
 
     # amass
+    echo -e \\n"Installing Amass"
     go install -v github.com/OWASP/Amass/v3/...@master
 
     # nuclei
+    echo -e \\n"Installing Nuclei and templates"
     go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
 
     # nuclei templates
     nuclei -update-templates
 
     # install dnsx
+    echo -e \\n"Installing DNSX"
     go install -v github.com/projectdiscovery/dnsx/cmd/dnsx@latest
 
     # Install dnsgen
+    echo -e \\n"Installing DNSGen"
     cd /opt/tools
     git clone https://github.com/ProjectAnte/dnsgen
     cd dnsgen
