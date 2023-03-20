@@ -37,8 +37,12 @@ check_if_success
 # install zsh autosuggestions and syntax highlighting
 sudo apt install zsh-autosuggestions zsh-syntax-highlighting
 check_if_success
-echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
-echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
+
+STRING="/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+if ! grep -q "$STRING" "~/.zshrc" ; then
+    echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+    echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
+fi
 
 # Install configs and dependencies for them if any
 # wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-configs.sh
