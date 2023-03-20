@@ -41,18 +41,18 @@ echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> 
 echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
 
 # Install configs and dependencies for them if any
-wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-configs.sh
+# wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-configs.sh
 chmod +x ./install-configs.sh
 ./install-configs.sh -t "$type"
 check_if_success
-rm ./install-configs.sh
+# rm ./install-configs.sh
 
 # Install the latest golang
-wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-golang.sh
+# wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-golang.sh
 chmod +x ./install-golang.sh
 ./install-golang.sh
 check_if_success
-rm ./install-golang.sh
+# rm ./install-golang.sh
 
 if [ -n "$ZSH_VERSION" ]; then
     source ~/.zshrc

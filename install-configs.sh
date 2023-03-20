@@ -31,16 +31,19 @@ echo "VM type: $type";
 
 if [[ $type == 'full' ]]; then
     echo "\nFull vim config"
-    vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-vimrc)
+    # vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-vimrc)
+    vim_rc=$(cat ./dotfiles/full-vimrc)
     echo "$vim_rc" > ~/.vimrc
 
     echo "\nFull shell aliases"
-    zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-aliases)
+    # zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-aliases)
+    zsh_rc=$(cat ./dotfiles/full-aliases)
     echo "$zsh_rc" >> ~/.zshrc
     echo "$zsh_rc" >> ~/.bash_aliases
 
     echo "\nFull tmux.conf"
-    tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-tmux.conf)
+    # tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-tmux.conf)
+    tmux_conf=$(cat ./dotfiles/full-tmux.conf)
     echo "$tmux_conf" > ~/.tmux.conf
 
     echo "\nInstall VIM plug"
@@ -57,15 +60,18 @@ fi
 
 if [[ $type == 'ctf' ]]; then
     echo "\nCTF vim config"
-    vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-vimrc)
+    # vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-vimrc)
+    vim_rc=$(cat ./dotfiles/ctf-vimrc)
     echo "$vim_rc" > ~/.vimrc
 
     echo "\nCTF shell aliases"
-    zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-aliases)
+    # zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-aliases)
+    zsh_rc=$(cat ./dotfiles/ctf-aliases)
     echo "$zsh_rc" >> ~/.zshrc
     echo "$zsh_rc" >> ~/.bash_aliases
 
     echo "\nCTF tmux.conf"
-    tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-tmux.conf)
+    # tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-tmux.conf)
+    tmux_conf=$(cat ./dotfiles/ctf-tmux.conf)
     echo "$tmux_conf" > ~/.tmux.conf
 fi
