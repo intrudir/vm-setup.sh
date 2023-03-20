@@ -27,7 +27,7 @@ if [[ ! $type == 'full' ]] && [[ ! $type == 'ctf' ]]; then
     exit 1
 fi
 
-echo "VM type: $type";
+echo "install-configs VM type: $type";
 
 if [[ $type == 'full' ]]; then
     echo "Full vim config"

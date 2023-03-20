@@ -28,7 +28,7 @@ if [[ ! $type == 'full' ]] && [[ ! $type == 'ctf' ]]; then
     exit 1
 fi
 
-echo "VM type: $type";
+echo "vm-setup VM type: $type";
 
 # install stuff
 sudo apt install dnsutils net-tools curl git tmux zsh wget fontconfig python3-pip python3-venv gcc
