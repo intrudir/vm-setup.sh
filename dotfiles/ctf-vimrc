@@ -1,0 +1,41 @@
+" turn on syntax highlight
+syntax on
+
+" turn on line numbers
+set number
+
+" make backspace work as intended in edit mode
+set backspace=indent,eol,start
+
+" Indentation
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+
+" Auto indent what you can
+set autoindent
+
+" Display
+set ls=2
+set noshowmode
+set showcmd
+set modeline
+set ruler
+set title
+set nu
+
+" History
+set history=50
+
+
+" Command shortcuts
+" sort the buffer removing duplicates
+nmap <Leader>s :%!sort -u --version-sort<CR>
+
+" Base64 decode word under cursor
+nmap <Leader>b :!echo <C-R><C-W> \| base64 -d<CR>
+
+" Pretty print XML
+nmap <Leader>x :!xmllint --format -
