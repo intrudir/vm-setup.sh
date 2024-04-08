@@ -47,7 +47,7 @@ function apply_shell_configurations {
 
 # Switch to Zsh if available
 function attempt_switch_to_zsh {
-    if command -v zsh >/dev/null; then
+    if command -v zsh >/dev/null && [ "$SHELL" != "$(command -v zsh)" ]; then
         local profile_file="$HOME/.bash_profile"
         [ ! -f "$profile_file" ] && profile_file="$HOME/.profile"
         
