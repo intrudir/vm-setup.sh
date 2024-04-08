@@ -1,102 +1,130 @@
 #!/bin/bash
 
 # Set Script Name variable
-SCRIPT=`basename ${BASH_SOURCE[0]}`
+SCRIPT=$(basename "${BASH_SOURCE[0]}")
 
 # Set fonts for Help.
-NORM=`tput sgr0`
-BOLD=`tput bold`
-REV=`tput smso`
+NORM=$(tput sgr0)
+BOLD=$(tput bold)
+REV=$(tput smso)
 
 # Help function
 function HELP {
-  echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
-  echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT -t [full, ctf]${NORM}"\\n
+  echo -e "\nHelp documentation for ${BOLD}${SCRIPT}.${NORM}\n"
+  echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT -t [full, ctf]${NORM}\n"
   echo "${REV}-t${NORM}  --Choose between 'full' or 'ctf' VM installs."
-  echo -e "${REV}-h${NORM}  --Displays this help message and exits."\\n
-  echo -e "Example: ${BOLD}$SCRIPT -t ctf"\\n
+  echo -e "${REV}-h${NORM}  --Displays this help message and exits.\n"
+  echo -e "Example: ${BOLD}$SCRIPT -t ctf\n"
   exit 1
 }
 
-function check_if_success () {
+function check_if_success {
     if [ $? -eq 0 ]; then
         echo "OK"
     else
         echo "Something went wrong. Stopping here so you can check the error."
-        exit
+        exit 1
+    fi
+}
+
+# Switch to Zsh if available
+function switch_to_zsh {
+    if command -v zsh >/dev/null; then
+        local profile_file="$HOME/.bash_profile"
+        [ ! -f "$profile_file" ] && profile_file="$HOME/.profile"
+        
+        # Confirm with the user before proceeding
+        echo "Zsh is available. Would you like to switch your default shell to Zsh? [y/N]"
+        read -r response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            # Check for existing Zsh switch commands to prevent duplicates
+            if ! grep -q 'exec "$SHELL" -l' "$profile_file"; then
+                echo "Switching to Zsh in $profile_file"
+                {
+                    echo "export SHELL=$(command -v zsh)"
+                    echo '[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l'
+                } >> "$profile_file"
+            else
+                echo "Shell switch to Zsh already configured."
+            fi
+            echo "Please log out and log back in for the default shell change to take effect."
+        else
+            echo "Skipping shell switch to Zsh."
+        fi
+    else
+        echo "Zsh is not available; continuing with Bash."
     fi
 }
 
 # Check the number of arguments. If none are passed, print help and exit.
-NUMARGS=$#
-if [ $NUMARGS -eq 0 ]; then
+if [ $# -eq 0 ]; then
   HELP
 fi
 
 while getopts 'h:t:' flag; do
-    case "$flag" in
-        h) echo "usage";;
+    case "${flag}" in
+        h) HELP ;;
         
-        t) type=${OPTARG};;
+        t) type=${OPTARG} ;;
+        
+        *) echo "Unexpected option: -${OPTARG}" >&2
+           HELP
+           exit 1 ;;
     esac
 done
 
-if [ -v "$type" ]; then
+if [ -z "$type" ]; then
     echo "The -t flag is required. Needs to be one of the following: ['full', 'ctf']"
     exit 1
 fi
 
-
 if [[ ! $type == 'full' ]] && [[ ! $type == 'ctf' ]]; then
-    echo "the -t flag needs to be either 'full' or 'ctf'."
+    echo "The -t flag needs to be either 'full' or 'ctf'."
     exit 1
 fi
 
-echo "VM type: $type";
+echo "VM type: $type"
+
+# Load configurations
+sh_rc=$(cat ./dotfiles/"${type}"-aliases)
+vim_rc=$(cat ./dotfiles/"${type}"-vimrc)
+tmux_conf=$(cat ./dotfiles/"${type}"-tmux.conf)
+
+if command -v zsh >/dev/null; then
+    SHELL_PATH=$(command -v zsh)
+    echo "ZSH is available. Setting up for ZSH."
+    echo "$sh_rc" >> ~/.zshrc
+else
+    echo "ZSH is not available. Setting up for BASH."
+    echo "$sh_rc" >> ~/.bash_aliases
+fi  # This was missing in your original script
 
 if [[ $type == 'full' ]]; then
-    echo -e \\n"Installing full vim config"
-    # vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-vimrc)
-    vim_rc=$(cat ./dotfiles/full-vimrc)
-    echo "$vim_rc" > ~/.vimrc
-
-    echo -e \\n"Installing full shell aliases"
-    # zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-aliases)
-    zsh_rc=$(cat ./dotfiles/full-aliases)
-    echo "$zsh_rc" >> ~/.zshrc
-    echo "$zsh_rc" >> ~/.bash_aliases
-
-    echo -e \\n"Installing full tmux.conf"
-    # tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/full-tmux.conf)
-    tmux_conf=$(cat ./dotfiles/full-tmux.conf)
-    echo "$tmux_conf" > ~/.tmux.conf
-
-    echo -e \\n"Installing VIM plug"
+    echo "Installing VIM plug"
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     check_if_success
 
-    echo -e \\n"Installing tmux themes"
-    sudo mkdir /opt/tmux && cd /opt/tmux
-    check_if_success
-    sudo git clone https://github.com/wfxr/tmux-power.git
-    cd ~
+    echo "Installing tmux themes"
+    if [ ! -d /opt/tmux ]; then
+        sudo mkdir -p /opt/tmux
+        check_if_success
+    fi
+    
+    cd /opt/tmux || { echo "Failed to change directory to /opt/tmux"; exit 1; }
+
+    if [ ! -d tmux-power ]; then
+        sudo git clone https://github.com/wfxr/tmux-power.git
+        check_if_success
+    else
+        echo "tmux-power already cloned. Skipping."
+    fi
 fi
 
+# Apply Vim and tmux configurations
+echo "Installing $type vim config"
+echo "$vim_rc" > ~/.vimrc
 
-if [[ $type == 'ctf' ]]; then
-    echo -e \\n"Installing CTF vim config"
-    # vim_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-vimrc)
-    vim_rc=$(cat ./dotfiles/ctf-vimrc)
-    echo "$vim_rc" > ~/.vimrc
+echo "Installing $type tmux.conf"
+echo "$tmux_conf" > ~/.tmux.conf
 
-    echo -e \\n"Installing CTF shell aliases"
-    # zsh_rc=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-aliases)
-    zsh_rc=$(cat ./dotfiles/ctf-aliases)
-    echo "$zsh_rc" >> ~/.zshrc
-    echo "$zsh_rc" >> ~/.bash_aliases
-
-    echo -e \\n"Installing CTF tmux.conf"
-    # tmux_conf=$(curl https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles/ctf-tmux.conf)
-    tmux_conf=$(cat ./dotfiles/ctf-tmux.conf)
-    echo "$tmux_conf" > ~/.tmux.conf
-fi
+switch_to_zsh
