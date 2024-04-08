@@ -8,6 +8,9 @@ NORM=$(tput sgr0)
 BOLD=$(tput bold)
 REV=$(tput smso)
 
+# Global variable to track if the user wants to switch to Zsh
+switch_to_zsh="no"
+
 # Help function
 function HELP {
   echo -e "\nHelp documentation for ${BOLD}${SCRIPT}.${NORM}\n"
@@ -27,27 +30,41 @@ function check_if_success {
     fi
 }
 
+# Apply shell aliases
+function apply_shell_configurations {
+    local shell_config="$1"
+    local bash_rc="$HOME/.bashrc"
+    local zsh_rc="$HOME/.zshrc"
+
+    # Apply configurations to Bash shell
+    echo "Applying configurations to $bash_rc"
+    echo "$shell_config" >> "$bash_rc"
+
+    # Apply configurations to Zsh shell
+    echo "Applying configurations to $zsh_rc"
+    echo "$shell_config" >> "$zsh_rc"
+}
+
 # Switch to Zsh if available
-function switch_to_zsh {
+function attempt_switch_to_zsh {
     if command -v zsh >/dev/null; then
         local profile_file="$HOME/.bash_profile"
         [ ! -f "$profile_file" ] && profile_file="$HOME/.profile"
         
-        # Confirm with the user before proceeding
         echo "Zsh is available. Would you like to switch your default shell to Zsh? [y/N]"
         read -r response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            # Check for existing Zsh switch commands to prevent duplicates
+            switch_to_zsh="yes"
             if ! grep -q 'exec "$SHELL" -l' "$profile_file"; then
                 echo "Switching to Zsh in $profile_file"
                 {
                     echo "export SHELL=$(command -v zsh)"
                     echo '[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l'
                 } >> "$profile_file"
+                echo "Please log out and log back in for the default shell change to take effect."
             else
                 echo "Shell switch to Zsh already configured."
             fi
-            echo "Please log out and log back in for the default shell change to take effect."
         else
             echo "Skipping shell switch to Zsh."
         fi
@@ -90,14 +107,11 @@ sh_rc=$(cat ./dotfiles/"${type}"-aliases)
 vim_rc=$(cat ./dotfiles/"${type}"-vimrc)
 tmux_conf=$(cat ./dotfiles/"${type}"-tmux.conf)
 
-if command -v zsh >/dev/null; then
-    SHELL_PATH=$(command -v zsh)
-    echo "ZSH is available. Setting up for ZSH."
-    echo "$sh_rc" >> ~/.zshrc
-else
-    echo "ZSH is not available. Setting up for BASH."
-    echo "$sh_rc" >> ~/.bash_aliases
-fi  # This was missing in your original script
+# Attempt to switch to Zsh if available and desired by the user
+attempt_switch_to_zsh
+
+# Apply shell configurations based on the current shell or user choice
+apply_shell_configurations "$sh_rc"
 
 if [[ $type == 'full' ]]; then
     echo "Installing VIM plug"
@@ -126,5 +140,3 @@ echo "$vim_rc" > ~/.vimrc
 
 echo "Installing $type tmux.conf"
 echo "$tmux_conf" > ~/.tmux.conf
-
-switch_to_zsh
