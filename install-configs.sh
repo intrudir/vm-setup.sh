@@ -42,22 +42,28 @@ function apply_shell_configurations {
     if [ -n "$custom_funcs_file" ] && [ -f "$custom_funcs_file" ]; then
         echo "Deploying custom shell functions to $custom_funcs_path"
         cp -f "$custom_funcs_file" "$custom_funcs_path"
+    else
+        echo "Custom functions file does not exist at $custom_funcs_file"
     fi
 
     # Ensure .bashrc and .zshrc source the custom functions file
     for rc_file in "$bash_rc" "$zsh_rc"; do
         if ! grep -q ".custom_shell_funcs" "$rc_file"; then
-            echo -e "\n# Source custom shell functions\n[ -f ~/.custom_shell_funcs ] && . ~/.custom_shell_funcs" >> "$rc_file"
+            echo -e "\n# Source custom shell functions\n[ -f $custom_funcs_path ] && . $custom_funcs_path" >> "$rc_file"
         fi
     done
 
-    # Apply configurations to Bash shell
-    echo "Applying configurations to $bash_rc"
-    echo "$shell_config" >> "$bash_rc"
+    # Apply configurations to Bash and Zsh shells, checking for existing aliases
+    for rc_file in "$bash_rc" "$zsh_rc"; do
+        echo "Applying configurations to $rc_file"
 
-    # Apply configurations to Zsh shell
-    echo "Applying configurations to $zsh_rc"
-    echo "$shell_config" >> "$zsh_rc"
+        # Read each line in the provided shell configuration
+        while IFS= read -r line; do
+            if ! grep -Fxq "$line" "$rc_file"; then
+                echo "$line" >> "$rc_file"
+            fi
+        done <<< "$shell_config"
+    done
 }
 
 # Switch to Zsh if available

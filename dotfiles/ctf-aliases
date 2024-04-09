@@ -1,4 +1,4 @@
-### my aliases
+### intrudir aliases
 # required to sudo an aliased command
 alias sudo='sudo '
 
