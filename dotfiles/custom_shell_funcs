@@ -1,4 +1,4 @@
-﻿function url_encode() 
+function url_encode() 
 {
   # url encode your arg
   python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus('$1'))"
