@@ -10,11 +10,9 @@ alias tmn='tmux new -s'
 # binaries
 alias vi='vim'
 alias ngrok='/opt/tools/ngrok'
-
-# web
 alias secretfinder='python3 /opt/tools/SecretFinder/SecretFinder.py'
 alias linkfinder='python3 /opt/tools/LinkFinder/linkfinder.py'
-alias bypassfuzzer='python3 /opt/tools/bypassfuzzer/bypassfuzzer.py'
+alias bypassfuzzer='python3 /opt/tools/BypassFuzzer/bypassfuzzer.py'
 
 # Proxy stuff
 alias burl='curl -x 127.0.0.1:8080 -k'
@@ -25,11 +23,6 @@ alias proxypy_unset='unset REQUESTS_CA_BUNDLE; unset HTTP_PROXY; unset HTTPS_PRO
 # shortcuts
 alias POST='curl -d @-'
 alias apachelogs="tail -f -n 10 /var/log/apache2/access.log"
-alias udc='python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus(sys.argv[1]))"'
-alias uec='python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))"'
-alias ascii_lower='python3 -c "import string; [print(x) for x in string.ascii_lowercase]"'
-alias ascii_upper='python3 -c "import string; [print(x) for x in string.ascii_uppercase]"'
-alias ascii_digits='python3 -c "import string; [print(x) for x in string.digits]"'
 
 # other
 export EDITOR=vim

@@ -1,0 +1,42 @@
+﻿function url-encode() {
+  python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus('$1'))"
+}
+
+function url-decode() {
+  python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus('$1'))"
+}
+
+function hex-encode()
+{
+  echo "$@" | xxd -p
+}
+
+function hex-decode()
+{
+  echo "$@" | xxd -p -r
+}
+
+function rot13()
+{
+  echo "$@" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+}
+
+function ascii_lower() {
+  python3 -c "import string; [print(x) for x in string.ascii_lowercase]"
+}
+
+function ascii_upper() {
+  python3 -c "import string; [print(x) for x in string.ascii_uppercase]"
+}
+
+function ascii_digits() {
+  python3 -c "import string; [print(x) for x in string.digits]"
+}
+
+function json_pp() {
+  python -mjson.tool <<< "$1"
+}
+
+function jwt_decode() {
+  echo -n "$1" | cut -d"." -f2 | base64 -d | json_pp
+}
