@@ -1,42 +1,81 @@
-﻿function url-encode() {
+﻿function url_encode() 
+{
+  # url encode your arg
   python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus('$1'))"
 }
 
-function url-decode() {
+function url_decode() 
+{
+  # url decode your arg
   python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus('$1'))"
 }
 
-function hex-encode()
+function hex_encode()
 {
+  # hex encode your arg
   echo "$@" | xxd -p
 }
 
-function hex-decode()
+function hex_decode()
 {
+  # hex decode your arg
   echo "$@" | xxd -p -r
 }
 
 function rot13()
 {
+  # convert arg to rot13
   echo "$@" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
 }
 
-function ascii_lower() {
+function ascii_lower()
+{
+  # print a-z with newlines
+  # can add | tr -d '\n' to remove newlines
   python3 -c "import string; [print(x) for x in string.ascii_lowercase]"
 }
 
-function ascii_upper() {
+function ascii_upper() 
+{
+  # print A-Z with newlines
+  # can add | tr -d '\n' to remove newlines
   python3 -c "import string; [print(x) for x in string.ascii_uppercase]"
 }
 
-function ascii_digits() {
+function ascii_digits() 
+{
+  # print 0-9 with newlines
+  # can add | tr -d '\n' to remove newlines
   python3 -c "import string; [print(x) for x in string.digits]"
 }
 
-function json_pp() {
-  python -mjson.tool <<< "$1"
+function json_pp() 
+{
+  # pretty print JSON
+  # need to escape quotes on the argument
+  python -m json.tool <<< "$1"
 }
 
-function jwt_decode() {
+function jwt_decode() 
+{
+  # decode JWT token payload
   echo -n "$1" | cut -d"." -f2 | base64 -d | json_pp
+}
+
+function proxypy() {
+  # Proxy python scripts that use 'requests' through burp.
+  # Need to download the usual burp CA cert.
+  # This func uses the first argument as the path to the certificate,
+  # with a default value if no argument is supplied.
+  local cert_path="${1:-$HOME/Downloads/cacert.der}"
+  export REQUESTS_CA_BUNDLE="$cert_path"
+  export HTTP_PROXY="http://127.0.0.1:8080"
+  export HTTPS_PROXY="http://127.0.0.1:8080"
+}
+
+function proxypy_unset() {
+  # Stop proxying python scripts through burp.
+  unset REQUESTS_CA_BUNDLE
+  unset HTTP_PROXY
+  unset HTTPS_PROXY
 }
