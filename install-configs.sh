@@ -32,11 +32,12 @@ function check_if_success {
 
 # Apply shell aliases and deploy custom shell functions
 function apply_shell_configurations {
-    local shell_config="$1"
+    local custom_aliases_file="$1"
     local custom_funcs_file="$2"
     local bash_rc="$HOME/.bashrc"
     local zsh_rc="$HOME/.zshrc"
     local custom_funcs_path="$HOME/.custom_shell_funcs"
+    local custom_aliases_path="$HOME/.custom_shell_aliases"
 
     # Copy the custom shell functions file to the home directory
     if [ -n "$custom_funcs_file" ] && [ -f "$custom_funcs_file" ]; then
@@ -46,23 +47,23 @@ function apply_shell_configurations {
         echo "Custom functions file does not exist at $custom_funcs_file"
     fi
 
-    # Ensure .bashrc and .zshrc source the custom functions file
+    # Copy the custom shell aliases file to the home directory
+    if [ -n "$custom_aliases_file" ] && [ -f "$custom_aliases_file" ]; then
+        echo "Deploying custom shell aliases to $custom_aliases_path"
+        cp -f "$custom_aliases_file" "$custom_aliases_path"
+    else
+        echo "Custom aliases file does not exist at $custom_aliases_file"
+    fi
+
+    # Ensure .bashrc and .zshrc source the custom functions and aliases files
     for rc_file in "$bash_rc" "$zsh_rc"; do
         if ! grep -q ".custom_shell_funcs" "$rc_file"; then
             echo -e "\n# Source custom shell functions\n[ -f $custom_funcs_path ] && . $custom_funcs_path" >> "$rc_file"
         fi
-    done
 
-    # Apply configurations to Bash and Zsh shells, checking for existing aliases
-    for rc_file in "$bash_rc" "$zsh_rc"; do
-        echo "Applying configurations to $rc_file"
-
-        # Read each line in the provided shell configuration
-        while IFS= read -r line; do
-            if ! grep -Fxq "$line" "$rc_file"; then
-                echo "$line" >> "$rc_file"
-            fi
-        done <<< "$shell_config"
+        if ! grep -q ".custom_shell_aliases" "$rc_file"; then
+            echo -e "\n# Source custom shell aliases\n[ -f $custom_aliases_path ] && . $custom_aliases_path" >> "$rc_file"
+        fi
     done
 }
 
@@ -124,16 +125,16 @@ fi
 echo "VM type: $type"
 
 # Load configurations
-sh_rc=$(cat ./dotfiles/"${type}"-aliases)
 vim_rc=$(cat ./dotfiles/"${type}"-vimrc)
 tmux_conf=$(cat ./dotfiles/"${type}"-tmux.conf)
 custom_funcs_file="./dotfiles/custom_shell_funcs"
+custom_aliases_file="./dotfiles/custom_shell_aliases"
 
 # Attempt to switch to Zsh if available and desired by the user
 attempt_switch_to_zsh
 
 # Apply shell configurations based on the current shell or user choice
-apply_shell_configurations "$sh_rc" "$custom_funcs_file"
+apply_shell_configurations "$custom_aliases_file" "$custom_funcs_file"
 
 if [[ $type == 'full' ]]; then
     echo "Installing VIM plug"
