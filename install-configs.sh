@@ -33,9 +33,9 @@ function check_if_success {
 # Apply shell aliases and deploy custom shell functions
 function apply_shell_configurations {
     local shell_config="$1"
+    local custom_funcs_file="$2"
     local bash_rc="$HOME/.bashrc"
     local zsh_rc="$HOME/.zshrc"
-    local custom_funcs_file="$2"
     local custom_funcs_path="$HOME/.custom_shell_funcs"
 
     # Copy the custom shell functions file to the home directory
@@ -121,12 +121,13 @@ echo "VM type: $type"
 sh_rc=$(cat ./dotfiles/"${type}"-aliases)
 vim_rc=$(cat ./dotfiles/"${type}"-vimrc)
 tmux_conf=$(cat ./dotfiles/"${type}"-tmux.conf)
+custom_funcs_file="./dotfiles/custom_shell_funcs"
 
 # Attempt to switch to Zsh if available and desired by the user
 attempt_switch_to_zsh
 
 # Apply shell configurations based on the current shell or user choice
-apply_shell_configurations "$sh_rc"
+apply_shell_configurations "$sh_rc" "$custom_funcs_file"
 
 if [[ $type == 'full' ]]; then
     echo "Installing VIM plug"
