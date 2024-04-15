@@ -64,6 +64,18 @@ function apply_shell_configurations {
         if ! grep -q ".custom_shell_aliases" "$rc_file"; then
             echo -e "\n# Source custom shell aliases\n[ -f $custom_aliases_path ] && . $custom_aliases_path" >> "$rc_file"
         fi
+
+        # Add zsh-specific keybindings only to .zshrc
+        # makes CMD + left and right arrow keys work in pwnbox
+        if [ "$rc_file" == "$zsh_rc" ]; then
+            # Check for existing keybindings
+            if ! grep -q "bindkey '^[b' backward-word" "$zsh_rc"; then
+                echo -e "\n# Custom keybindings for word navigation\nbindkey '^[b' backward-word" >> "$zsh_rc"
+            fi
+            if ! grep -q "bindkey '^[f' forward-word" "$zsh_rc"; then
+                echo -e "bindkey '^[f' forward-word" >> "$zsh_rc"
+            fi
+        fi
     done
 }
 
