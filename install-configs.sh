@@ -69,10 +69,10 @@ function apply_shell_configurations {
         # makes CMD + left and right arrow keys work in pwnbox
         if [ "$rc_file" == "$zsh_rc" ]; then
             # Check for existing keybindings
-            if ! grep -q "bindkey '^[b' backward-word" "$zsh_rc"; then
+            if ! grep -q "bindkey '^\\[b' backward-word" "$zsh_rc"; then
                 echo -e "\n# Custom keybindings for word navigation\nbindkey '^[b' backward-word" >> "$zsh_rc"
             fi
-            if ! grep -q "bindkey '^[f' forward-word" "$zsh_rc"; then
+            if ! grep -q "bindkey '\^\\[f' forward-word" "$zsh_rc"; then
                 echo -e "bindkey '^[f' forward-word" >> "$zsh_rc"
             fi
         fi
