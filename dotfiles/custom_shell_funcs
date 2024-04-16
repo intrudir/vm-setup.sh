@@ -79,3 +79,23 @@ function proxypy_unset() {
   unset HTTP_PROXY
   unset HTTPS_PROXY
 }
+
+function add_vhost() {
+  if [[ $# -ne 2 ]]; then
+    echo "Usage: add_vhost <IP> <Hostname>"
+    return 1
+  fi
+
+  local ip="$1"
+  local hostname="$2"
+
+  # Append the new host entry to /etc/hosts
+  echo "$ip $hostname" | sudo tee -a /etc/hosts > /dev/null
+
+  if [[ $? -eq 0 ]]; then
+    echo "Successfully added $ip $hostname to /etc/hosts"
+  else
+    echo "Failed to add $hostname to /etc/hosts"
+    return 1
+  fi
+}
