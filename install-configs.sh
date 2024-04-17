@@ -138,7 +138,7 @@ echo "VM type: $type"
 
 # Load configurations
 vim_rc=$(cat ./dotfiles/"${type}"-vimrc)
-tmux_conf=$(cat ./dotfiles/"${type}"-tmux.conf)
+tmux_conf=$(cat ./dotfiles/tmux.conf)
 custom_funcs_file="./dotfiles/custom_shell_funcs"
 custom_aliases_file="./dotfiles/custom_shell_aliases"
 
@@ -147,6 +147,13 @@ attempt_switch_to_zsh
 
 # Apply shell configurations based on the current shell or user choice
 apply_shell_configurations "$custom_aliases_file" "$custom_funcs_file"
+
+# Apply Vim and tmux configurations
+echo "Installing $type vim config"
+echo "$vim_rc" > ~/.vimrc
+
+echo "Installing $type tmux.conf"
+echo "$tmux_conf" > ~/.tmux.conf
 
 if [[ $type == 'full' ]]; then
     echo "Installing VIM plug"
@@ -167,11 +174,7 @@ if [[ $type == 'full' ]]; then
     else
         echo "tmux-power already cloned. Skipping."
     fi
+
+    if ! grep -q "run-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"" ~/.tmux.conf; then
+        echo -e "\n# Tmux themes\nrun-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"" >> ~/.tmux.conf
 fi
-
-# Apply Vim and tmux configurations
-echo "Installing $type vim config"
-echo "$vim_rc" > ~/.vimrc
-
-echo "Installing $type tmux.conf"
-echo "$tmux_conf" > ~/.tmux.conf
