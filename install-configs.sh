@@ -177,4 +177,5 @@ if [[ $type == 'full' ]]; then
 
     if ! grep -q "run-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"" ~/.tmux.conf; then
         echo -e "\n# Tmux themes\nrun-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"" >> ~/.tmux.conf
+    fi
 fi
