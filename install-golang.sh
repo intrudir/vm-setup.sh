@@ -23,40 +23,48 @@ case $OS in
             ARCH=386
             ;;
         esac
-        PLATFORM="linux-$ARCH"
     ;;
     "darwin")
-          case $ARCH in
-          "x86_64")
-              ARCH=amd64
-              ;;
-          "arm64")
-              ARCH=arm64
-              ;;
-          esac
-        PLATFORM="darwin-$ARCH"
-    ;;
+        case $ARCH in
+        "x86_64")
+            ARCH=amd64
+            ;;
+        "arm64")
+            ARCH=arm64
+            ;;
+        esac
+        ;;
 esac
 
+PLATFORM="$OS-$ARCH"
 LATEST_GO_VERSION="$(curl 'https://go.dev/VERSION?m=text')"
-GO_TAR="$LATEST_GO_VERSION.$OS-$ARCH.tar.gz"
+INSTALL_DIR="/usr/local"
+if [ $? -ne 0 ]; then
+    echo "Failed to fetch the latest Go version."
+    exit 1
+fi
+
+GO_TAR="${LATEST_GO_VERSION}.${PLATFORM}.tar.gz"
 LATEST_GO_DOWNLOAD="https://golang.org/dl/$GO_TAR"
 
-printf "cd to home ($USER) directory \n"
-cd "/home/$USER"
+echo "cd to installation directory ($INSTALL_DIR)"
+cd "$INSTALL_DIR" || { echo "Failed to change directory to $INSTALL_DIR"; exit 1; }
 
-printf "Downloading ${LATEST_GO_DOWNLOAD}\n\n";
-curl -OJ -L --progress-bar "$LATEST_GO_DOWNLOAD"
+echo "Downloading ${LATEST_GO_DOWNLOAD}"
+curl -OJL --progress-bar "$LATEST_GO_DOWNLOAD" || { echo "Download failed"; exit 1; }
 
-printf "Extracting file...\n"
-tar -xf "$GO_TAR"
+echo "Extracting file..."
+tar -xf "$GO_TAR" || { echo "Failed to extract files"; exit 1; }
 
+echo "Configuring environment variables"
 golang_paths="
 # golang stuff
-export GOROOT=\"\$HOME/go\"
-export GOPATH=\"\$HOME/go/packages\"
-export PATH=\"\$PATH:\$GOROOT/bin:\$GOPATH/bin\"
+export GOROOT='${INSTALL_DIR}/go'
+export GOPATH='\$HOME/go'
+export PATH='\$PATH:\$GOROOT/bin:\$GOPATH/bin'
 "
 echo "$golang_paths" >> ~/.zshrc
 echo "$golang_paths" >> ~/.bashrc
 rm "$GO_TAR"
+
+echo "Installation complete. Please restart your shell or source your profile to apply changes."
