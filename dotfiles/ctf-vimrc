@@ -1,6 +1,15 @@
 " turn on syntax highlight
 syntax on
 
+" turn on filetype mode
+filetype on
+
+" see line and column in status line
+set ruler
+
+" see special chars
+set list
+
 " turn on line numbers
 set number
 
