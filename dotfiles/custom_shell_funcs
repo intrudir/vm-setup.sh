@@ -10,6 +10,15 @@ function url_decode()
   python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus('$1'))"
 }
 
+json_encode() {
+  # Check if there's input from stdin; if so, use it; otherwise, use the argument.
+  if [ -t 0 ]; then
+    echo -n "$1" | jq -Rs .
+  else
+    jq -Rs . 
+  fi
+}
+
 function hex_encode()
 {
   # hex encode your arg
