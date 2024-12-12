@@ -3,6 +3,7 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config.default_prog = { "powershell.exe", "-NoLogo" }
+config.tab_bar_at_bottom = true
 
 -- config.color_scheme = 'Ayu Mirage (Gogh)'
 config.color_scheme = 'Andromeda'
