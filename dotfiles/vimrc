@@ -43,7 +43,8 @@ set history=50
 nmap <Leader>s :%!sort -u --version-sort<CR>
 
 " Base64 decode word under cursor
-nmap <Leader>b :!echo <C-R><C-W> \| base64 -d<CR>
+"nmap <Leader>b :!echo <C-R><C-W> \| base64 -d<CR>
+nmap <Leader>b :!echo <C-R><C-W> <bar> base64 -d<CR>
 
 " Pretty print XML
 nmap <Leader>x :!xmllint --format -
