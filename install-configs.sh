@@ -55,7 +55,7 @@ function attempt_switch_to_zsh {
         [ ! -f "$profile_file" ] && profile_file="$HOME/.profile"
 
         echo "Zsh detected. Switch default shell to zsh? [y/N]"
-        read -r resp
+        read -r resp < /dev/tty
 
         if [[ "$resp" =~ ^([yY][eE][sS]|[yY])$ ]]; then
             echo "export SHELL=$(command -v zsh)" >> "$profile_file"
