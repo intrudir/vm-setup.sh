@@ -8,7 +8,7 @@ filetype on
 set ruler
 
 " see special chars
-set list
+"set list
 
 " turn on line numbers
 set number
@@ -31,7 +31,6 @@ set ls=2
 set noshowmode
 set showcmd
 set modeline
-set ruler
 set title
 set nu
 
