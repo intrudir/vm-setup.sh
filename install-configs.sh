@@ -32,6 +32,11 @@ function apply_shell_configurations {
     if [ -f "$custom_funcs_file" ]; then
         echo "Deploying custom shell functions"
         cp -f "$custom_funcs_file" "$custom_funcs_path"
+
+        # if Oh my ZSH is installed, copy there too
+        if [ -n "$ZSH_CUSTOM" ] && [ -d "$ZSH_CUSTOM" ]; then
+            cp -f "$custom_funcs_file" "$ZSH_CUSTOM/custom_shell_funcs.zsh"
+        
     else
         echo "Custom functions file missing: $custom_funcs_file"
     fi
@@ -40,6 +45,11 @@ function apply_shell_configurations {
     if [ -f "$custom_aliases_file" ]; then
         echo "Deploying custom shell aliases"
         cp -f "$custom_aliases_file" "$custom_aliases_path"
+        
+        # if Oh my ZSH is installed, copy there too
+        if [ -n "$ZSH_CUSTOM" ] && [ -d "$ZSH_CUSTOM" ]; then
+            cp -f "$custom_aliases_file" "$ZSH_CUSTOM/custom_shell_aliases.zsh"
+        fi
     else
         echo "Custom aliases file missing: $custom_aliases_file"
     fi
