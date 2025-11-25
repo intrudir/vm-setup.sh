@@ -1,92 +1,66 @@
 #!/bin/bash
 
-# Set Script Name variable
-SCRIPT=$(basename "${BASH_SOURCE[0]}")
+echo "Running environment setup..."
 
-# Set fonts for Help.
-NORM=$(tput sgr0)
-BOLD=$(tput bold)
-REV=$(tput smso)
+GIT_BASE="https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/dotfiles"
 
-switch_to_zsh="no"
-
+# -----------------------------
+# UTILS
+# -----------------------------
 function check_if_success {
-    if [ $? -eq 0 ]; then
-        echo "OK"
-    else
-        echo "Something went wrong. Stopping here so you can check the error."
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Something failed. Stopping."
         exit 1
     fi
 }
 
-# Apply shell aliases and deploy custom shell functions
-function apply_shell_configurations {
-    local custom_aliases_file="$1"
-    local custom_funcs_file="$2"
-    local bash_rc="$HOME/.bashrc"
-    local zsh_rc="$HOME/.zshrc"
-    local custom_funcs_path="$HOME/.custom_shell_funcs"
-    local custom_aliases_path="$HOME/.custom_shell_aliases"
+# -----------------------------
+# SELECT LOCAL OR REMOTE DOTFILES
+# -----------------------------
+if [ -d "./dotfiles" ]; then
+    echo "[*] Found ./dotfiles — using local files"
+    USE_LOCAL=true
+else
+    echo "[*] No ./dotfiles folder — downloading from GitHub"
+    USE_LOCAL=false
+fi
 
-    # Copy functions
-    if [ -f "$custom_funcs_file" ]; then
-        echo "Deploying custom shell functions"
-        cp -f "$custom_funcs_file" "$custom_funcs_path"
+function get_dotfile {
+    local filename="$1"
+    local target="$2"   # e.g. ~/.vimrc
 
-        # if Oh my ZSH is installed, copy there too
-        if [ -n "$ZSH_CUSTOM" ] && [ -d "$ZSH_CUSTOM" ]; then
-            cp -f "$custom_funcs_file" "$ZSH_CUSTOM/custom_shell_funcs.zsh"
-        
-    else
-        echo "Custom functions file missing: $custom_funcs_file"
+    if $USE_LOCAL && [ -f "./dotfiles/$filename" ]; then
+        echo "Using local ./dotfiles/$filename → $target"
+        cp -f "./dotfiles/$filename" "$target"
+        check_if_success
+        return
     fi
 
-    # Copy aliases
-    if [ -f "$custom_aliases_file" ]; then
-        echo "Deploying custom shell aliases"
-        cp -f "$custom_aliases_file" "$custom_aliases_path"
-        
-        # if Oh my ZSH is installed, copy there too
-        if [ -n "$ZSH_CUSTOM" ] && [ -d "$ZSH_CUSTOM" ]; then
-            cp -f "$custom_aliases_file" "$ZSH_CUSTOM/custom_shell_aliases.zsh"
-        fi
-    else
-        echo "Custom aliases file missing: $custom_aliases_file"
-    fi
-
-    # Source them in .bashrc and .zshrc
-    for rc_file in "$bash_rc" "$zsh_rc"; do
-        if ! grep -q ".custom_shell_funcs" "$rc_file" 2>/dev/null; then
-            echo -e "\n# Source custom shell functions\n[ -f $custom_funcs_path ] && . $custom_funcs_path" >> "$rc_file"
-        fi
-
-        if ! grep -q ".custom_shell_aliases" "$rc_file" 2>/dev/null; then
-            echo -e "\n# Source custom shell aliases\n[ -f $custom_aliases_path ] && . $custom_aliases_path" >> "$rc_file"
-        fi
-
-        # Add keybindings for zsh
-        if [ "$rc_file" == "$zsh_rc" ]; then
-            grep -q "backward-word" "$zsh_rc" || echo "bindkey '^[b' backward-word" >> "$zsh_rc"
-            grep -q "forward-word" "$zsh_rc" || echo "bindkey '^[f' forward-word" >> "$zsh_rc"
-        fi
-    done
+    echo "Downloading $filename → $target"
+    curl -fsSL "$GIT_BASE/$filename" -o "$target"
+    check_if_success
 }
 
+get_dotfile "vimrc"                "$HOME/.vimrc"
+get_dotfile "tmux.conf"            "$HOME/.tmux.conf"
+get_dotfile "custom_shell_funcs"   "$HOME/.custom_shell_funcs"
+get_dotfile "custom_shell_aliases" "$HOME/.custom_shell_aliases"
+
+# -----------------------------
+# OPTIONAL ZSH DEFAULT SHELL SWITCH
+# -----------------------------
 function attempt_switch_to_zsh {
     if command -v zsh >/dev/null && [ "$SHELL" != "$(command -v zsh)" ]; then
         local profile_file="$HOME/.bash_profile"
         [ ! -f "$profile_file" ] && profile_file="$HOME/.profile"
 
-        echo "Zsh is available. Switch default shell to Zsh? [y/N]"
-        read -r response
-        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            if ! grep -q 'exec "$SHELL" -l' "$profile_file"; then
-                echo "export SHELL=$(command -v zsh)" >> "$profile_file"
-                echo '[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l' >> "$profile_file"
-                echo "Shell switch configured. Log out/in to activate."
-            else
-                echo "Shell switch already configured."
-            fi
+        echo "Zsh detected. Switch default shell to zsh? [y/N]"
+        read -r resp
+
+        if [[ "$resp" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            echo "export SHELL=$(command -v zsh)" >> "$profile_file"
+            echo '[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l' >> "$profile_file"
+            echo "Default shell will switch to zsh after logout."
         else
             echo "Skipping zsh switch."
         fi
@@ -95,50 +69,69 @@ function attempt_switch_to_zsh {
     fi
 }
 
-echo "Running environment setup"
-
-# Load configs
-vim_rc=$(cat ./dotfiles/vimrc)
-tmux_conf=$(cat ./dotfiles/tmux.conf)
-custom_funcs_file="./dotfiles/custom_shell_funcs"
-custom_aliases_file="./dotfiles/custom_shell_aliases"
-
-# Switch to zsh if wanted
 attempt_switch_to_zsh
 
-# Apply shell configs
-apply_shell_configurations "$custom_aliases_file" "$custom_funcs_file"
+# -----------------------------------------
+# HANDLE OH-MY-ZSH VS REGULAR SHELL SETUP
+# -----------------------------------------
 
-# Install vimrc
-echo "Installing vim config"
-echo "$vim_rc" > ~/.vimrc
+if [ -n "$ZSH_CUSTOM" ] && [ -d "$ZSH_CUSTOM" ]; then
+    echo "[*] Oh-My-Zsh detected — installing into \$ZSH_CUSTOM"
 
-# Install tmux conf
-echo "Installing tmux config"
-echo "$tmux_conf" > ~/.tmux.conf
+    # Copy into Oh-My-Zsh autoload locations
+    cp -f "$HOME/.custom_shell_funcs"   "$ZSH_CUSTOM/custom_shell_funcs.zsh"
+    cp -f "$HOME/.custom_shell_aliases" "$ZSH_CUSTOM/custom_shell_aliases.zsh"
 
-# Install vim-plug
-echo "Installing vim plug"
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-check_if_success
-
-# Install tmux themes
-echo "Installing tmux themes"
-sudo mkdir -p /opt/tmux
-check_if_success
-
-cd /opt/tmux || { echo "Failed to cd to /opt/tmux"; exit 1; }
-
-if [ ! -d tmux-power ]; then
-    sudo git clone https://github.com/wfxr/tmux-power.git
-    check_if_success
+    # When using Oh-My-Zsh, DO NOT modify ~/.zshrc
+    # Oh-My-Zsh will source custom plugins automatically.
+    
 else
-    echo "tmux-power already exists; skipping clone."
+    echo "[*] Oh-My-Zsh NOT found — sourcing files manually"
+
+    function ensure_sourcing {
+        local rc="$1"
+        local funcs="$HOME/.custom_shell_funcs"
+        local aliases="$HOME/.custom_shell_aliases"
+
+        [ -f "$rc" ] || touch "$rc"
+
+        grep -q ".custom_shell_funcs" "$rc" || \
+            echo "[ -f $funcs ] && . $funcs" >> "$rc"
+
+        grep -q ".custom_shell_aliases" "$rc" || \
+            echo "[ -f $aliases ] && . $aliases" >> "$rc"
+
+        # ZSH-only keybindings (only when NOT using Oh-My-Zsh)
+        if [[ "$rc" == "$HOME/.zshrc" ]]; then
+            grep -q "backward-word" "$rc" || echo "bindkey '^[b' backward-word" >> "$rc"
+            grep -q "forward-word"  "$rc" || echo "bindkey '^[f' forward-word" >> "$rc"
+            grep -q "beginning-of-line" "$rc" || echo "bindkey '\e[1~' beginning-of-line" >> "$rc"
+            grep -q "end-of-line"       "$rc" || echo "bindkey '\e[4~' end-of-line" >> "$rc"
+        fi
+    }
+
+    # Source for bash + zsh only if Oh-My-Zsh is not present
+    ensure_sourcing "$HOME/.bashrc"
+    ensure_sourcing "$HOME/.zshrc"
 fi
 
-if ! grep -q "tmux-power.tmux" ~/.tmux.conf; then
-    echo -e "\n# Tmux themes\nrun-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"" >> ~/.tmux.conf
-fi
+
+# -----------------------------
+# INSTALL tmux-power THEME
+# -----------------------------
+# echo "Installing tmux-power theme..."
+
+# sudo mkdir -p /opt/tmux
+# check_if_success
+
+# if [ ! -d /opt/tmux/tmux-power ]; then
+#     sudo git clone https://github.com/wfxr/tmux-power.git /opt/tmux/tmux-power
+# else
+#     echo "tmux-power already installed."
+# fi
+
+# if ! grep -q "tmux-power.tmux" "$HOME/.tmux.conf"; then
+#     echo "run-shell \"/opt/tmux/tmux-power/tmux-power.tmux\"" >> "$HOME/.tmux.conf"
+# fi
 
 echo "Setup complete!"
