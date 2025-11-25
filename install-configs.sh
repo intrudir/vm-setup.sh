@@ -50,24 +50,33 @@ get_dotfile "custom_shell_aliases" "$HOME/.custom_shell_aliases"
 # OPTIONAL ZSH DEFAULT SHELL SWITCH
 # -----------------------------
 function attempt_switch_to_zsh {
-    if command -v zsh >/dev/null && [ "$SHELL" != "$(command -v zsh)" ]; then
-        local profile_file="$HOME/.bash_profile"
-        [ ! -f "$profile_file" ] && profile_file="$HOME/.profile"
+    if ! command -v zsh >/dev/null; then
+        echo "Zsh not installed — skipping."
+        return
+    fi
 
-        echo "Zsh detected. Switch default shell to zsh? [y/N]"
-        read -r resp < /dev/tty
+    echo "Zsh detected. Automatically start zsh for all future shells? [y/N]"
+    read -r resp < /dev/tty
 
-        if [[ "$resp" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            echo "export SHELL=$(command -v zsh)" >> "$profile_file"
-            echo '[ -z "$ZSH_VERSION" ] && exec "$SHELL" -l' >> "$profile_file"
-            echo "Default shell will switch to zsh after logout."
-        else
-            echo "Skipping zsh switch."
+    if [[ "$resp" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "Setting future shells to auto-switch to zsh..."
+
+        # Only append if not already present
+        if ! grep -q 'exec zsh -l' "$HOME/.bashrc"; then
+            echo "" >> "$HOME/.bashrc"
+            echo "# Auto-switch to zsh for future shells" >> "$HOME/.bashrc"
+            echo '[ -z "$ZSH_VERSION" ] && exec zsh -l' >> "$HOME/.bashrc"
         fi
+
+        # Immediately switch current session to zsh
+        echo "Switching current shell to zsh..."
+        exec zsh -l
     else
-        echo "Zsh not available or already default."
+        echo "Not enabling zsh auto-switch."
     fi
 }
+
+
 
 attempt_switch_to_zsh
 
