@@ -22,7 +22,7 @@ For every script, depending on if you want the full VM install or just minimal C
 ### Install just the configs
 ```bash
 chmod +x install-configs.sh
-./install-configs.sh -t ctf
+./install-configs.sh
 ```
 
 ### Install just the tools

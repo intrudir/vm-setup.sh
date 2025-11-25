@@ -72,7 +72,7 @@ fi
 # Install configs and dependencies for them if any
 # wget https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/install-configs.sh
 chmod +x ./install-configs.sh
-./install-configs.sh -t "$type"
+./install-configs.sh
 check_if_success
 # rm ./install-configs.sh
 
