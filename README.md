@@ -20,6 +20,24 @@ Preview what would happen without changing files:
 curl -fsSL https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/vm-setup.sh | bash -s -- --profile full --dry-run
 ```
 
+## Offline config install
+
+If the target has no internet access, copy a zip of this repo to the box, unzip it, and run the config profile in offline mode:
+
+```bash
+unzip vm-setup.sh-main.zip
+cd vm-setup.sh-main
+bash vm-setup.sh --profile configs --offline
+```
+
+For unattended offline config installation:
+
+```bash
+bash vm-setup.sh --profile configs --offline --yes
+```
+
+`--offline` never fetches from GitHub. It only uses the `dotfiles/` directory next to `vm-setup.sh` and fails clearly if those files are missing.
+
 ## Profiles
 
 - `configs`: install vim, tmux, aliases, functions, and bash/zsh source blocks only
@@ -34,6 +52,7 @@ curl -fsSL https://raw.githubusercontent.com/intrudir/vm-setup.sh/main/vm-setup.
 --only <configs,base,go,tools>
 --yes
 --dry-run
+--offline
 --backup-dir <path>
 --source-url <url>
 --tools-dir <path>

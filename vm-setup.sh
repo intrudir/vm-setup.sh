@@ -9,6 +9,7 @@ ONLY=""
 YES=false
 DRY_RUN=false
 FORCE_GO=false
+OFFLINE=false
 BACKUP_DIR="${HOME}/.vm-setup-backups/$(date +%Y%m%d-%H%M%S)"
 TOOLS_DIR="/opt/tools"
 LOCAL_ROOT=""
@@ -46,6 +47,7 @@ Options:
   --only <list>                     Comma-separated components: configs,base,go,tools
   --yes                             Do not prompt for confirmation
   --dry-run                         Print actions without changing files
+  --offline                         Use only files from this repo checkout
   --backup-dir <path>               Backup directory for replaced configs
   --source-url <url>                Raw source URL for remote dotfiles
   --tools-dir <path>                Directory for source-based tools. Default: /opt/tools
@@ -128,6 +130,10 @@ parse_args() {
         ;;
       --dry-run)
         DRY_RUN=true
+        shift
+        ;;
+      --offline)
+        OFFLINE=true
         shift
         ;;
       --backup-dir)
@@ -272,6 +278,9 @@ fetch_dotfile() {
   if [[ -n "$LOCAL_ROOT" && -f "$LOCAL_ROOT/dotfiles/$name" ]]; then
     run cp -f "$LOCAL_ROOT/dotfiles/$name" "$target"
   else
+    if "$OFFLINE"; then
+      die "Offline mode requires $name at ./dotfiles/$name next to $SCRIPT_NAME"
+    fi
     run curl -fsSL "$url" -o "$target"
   fi
 }
@@ -523,6 +532,9 @@ print_summary() {
   log "OS: $OS ($PACKAGE_MANAGER), arch: $ARCH"
   log "Source URL: $SOURCE_URL"
   log "Backup dir: $BACKUP_DIR"
+  if "$OFFLINE"; then
+    log "Offline mode enabled"
+  fi
   if "$DRY_RUN"; then
     log "Dry-run mode enabled"
   fi
