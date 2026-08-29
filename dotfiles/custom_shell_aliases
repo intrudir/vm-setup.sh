@@ -14,6 +14,18 @@ alias secretfinder='python3 /opt/tools/SecretFinder/SecretFinder.py'
 alias linkfinder='python3 /opt/tools/LinkFinder/linkfinder.py'
 alias bypassfuzzer='python3 /opt/tools/BypassFuzzer/bypassfuzzer.py'
 
+# ffuf workflows (implemented in custom_shell_funcs)
+alias ffuf-swagger='ffuf_swagger'
+alias ffuf-intrudir='ffuf_intrudir'
+alias ffuf-intrudir-ext='ffuf_intrudir_ext'
+alias ffuf-to-tsv='ffuf_to_tsv'
+alias ffuf-smart-filter='ffuf_smart_filter'
+alias ffs='ffuf_swagger'
+alias ffi='ffuf_intrudir'
+alias ffie='ffuf_intrudir_ext'
+alias ff2t='ffuf_to_tsv'
+alias ffsmart='ffuf_smart_filter'
+
 # shortcuts
 alias burl='curl -x 127.0.0.1:8080 -k'
 alias murl="curl -x 127.0.0.1:8080 -k -H $'intrudir: magenta'"
