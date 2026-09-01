@@ -14,7 +14,157 @@ alias secretfinder='python3 /opt/tools/SecretFinder/SecretFinder.py'
 alias linkfinder='python3 /opt/tools/LinkFinder/linkfinder.py'
 alias bypassfuzzer='python3 /opt/tools/BypassFuzzer/bypassfuzzer.py'
 
-# ffuf workflows (implemented in custom_shell_funcs)
+# ffuf workflows
+_ffuf_scan() {
+  if [ "$#" -lt 3 ]; then
+    echo "Usage: _ffuf_scan <wordlist> <scan-name> <url> [ffuf options...]" >&2
+    return 2
+  fi
+
+  local wordlist="$1"
+  local scan_name="$2"
+  local target_url="$3"
+  shift 3
+
+  if [ ! -r "$wordlist" ]; then
+    echo "Wordlist is not readable: $wordlist" >&2
+    return 1
+  fi
+
+  case "$target_url" in
+    *FUZZ*) ;;
+    *) target_url="${target_url%/}/FUZZ" ;;
+  esac
+
+  local authority="${target_url#*://}"
+  authority="${authority%%/*}"
+  authority="${authority%%\?*}"
+  authority="${authority%%\#*}"
+
+  local safe_host
+  safe_host="$(printf '%s' "$authority" | tr -c '[:alnum:].-' '_')"
+
+  local output_file="${safe_host}_${scan_name}_$(date +%Y%m%d_%H%M%S).json"
+  local browser_ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+
+  echo "ffuf target: $target_url"
+  echo "JSON output: $output_file"
+
+  command ffuf \
+    -c \
+    -w "$wordlist" \
+    -of json \
+    -o "$output_file" \
+    -u "$target_url" \
+    -rate 500 \
+    -H "User-Agent: $browser_ua" \
+    "$@"
+}
+
+ffuf_swagger() {
+  if [ "$#" -lt 1 ]; then
+    echo "Usage: ffuf-swagger <url[/FUZZ]> [ffuf options...]" >&2
+    return 2
+  fi
+
+  local target_url="$1"
+  shift
+  _ffuf_scan \
+    /opt/tools/wordlists/apis/swagger/all_my_swagger.txt \
+    swagger \
+    "$target_url" \
+    "$@"
+}
+
+ffuf_intrudir() {
+  if [ "$#" -lt 1 ]; then
+    echo "Usage: ffuf-intrudir <url[/FUZZ]> [ffuf options...]" >&2
+    return 2
+  fi
+
+  local target_url="$1"
+  shift
+  _ffuf_scan \
+    /opt/tools/wordlists/contentdiscovery/custom/intrudir.txt \
+    intrudir \
+    "$target_url" \
+    "$@"
+}
+
+ffuf_intrudir_ext() {
+  if [ "$#" -lt 1 ]; then
+    echo "Usage: ffuf-intrudir-ext <url[/FUZZ]> [ffuf options...]" >&2
+    return 2
+  fi
+
+  local target_url="$1"
+  shift
+  _ffuf_scan \
+    /opt/tools/wordlists/contentdiscovery/custom/intrudir.txt \
+    intrudir_ext \
+    "$target_url" \
+    -e .html,.htm,.json,.old,.bak,.tmp,.conf,.yml,.yaml,.log,.xml,.env,.config \
+    "$@"
+}
+
+ffuf_to_tsv() {
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Usage: ffuf-to-tsv <ffuf.json> [output.tsv]" >&2
+    return 2
+  fi
+
+  local input_file="$1"
+  local output_file="${2:-${input_file%.json}.tsv}"
+  local temp_file
+
+  if [ ! -r "$input_file" ]; then
+    echo "Input is not readable: $input_file" >&2
+    return 1
+  fi
+  if [ "$input_file" = "$output_file" ]; then
+    echo "Input and output must be different files." >&2
+    return 1
+  fi
+
+  temp_file="$(mktemp "${output_file}.tmp.XXXXXX")" || return 1
+  if jq -r '
+    ["host","status","length","words","lines","url"],
+    (.results[] | [.host, .status, .length, .words, .lines, .url])
+    | @tsv
+  ' "$input_file" > "$temp_file"; then
+    mv "$temp_file" "$output_file"
+    echo "TSV output: $output_file"
+  else
+    rm -f "$temp_file"
+    return 1
+  fi
+}
+
+ffuf_smart_filter() {
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Usage: ffuf-smart-filter <input.tsv> [output.tsv]" >&2
+    return 2
+  fi
+
+  local input_file="$1"
+  local output_file="${2:-${input_file%.tsv}_smart.tsv}"
+
+  if [ ! -r "$input_file" ]; then
+    echo "Input is not readable: $input_file" >&2
+    return 1
+  fi
+  if [ "$input_file" = "$output_file" ]; then
+    echo "Input and output must be different files." >&2
+    return 1
+  fi
+
+  python3 /opt/tools/FFUF-Smart-Filter/ffuf_smart_filter.py \
+    "$input_file" \
+    -o "$output_file" \
+    --header \
+    --write-header && echo "Filtered TSV output: $output_file"
+}
+
 alias ffuf-swagger='ffuf_swagger'
 alias ffuf-intrudir='ffuf_intrudir'
 alias ffuf-intrudir-ext='ffuf_intrudir_ext'
