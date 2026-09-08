@@ -73,6 +73,15 @@ Examples:
 ./vm-setup.sh --profile full --yes
 ```
 
+The installed shell aliases use `TOOLS_DIR` for paths to source-based tools and
+default it to `/opt/tools`. To use a different location on a VM, export the
+variable before `~/.custom_shell_aliases` is sourced, or change its default near
+the top of that file:
+
+```bash
+export TOOLS_DIR="$HOME/tools"
+```
+
 ## Safety behavior
 
 - Existing dotfiles are backed up before replacement.
