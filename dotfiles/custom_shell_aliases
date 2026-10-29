@@ -1,4 +1,7 @@
 ### intrudir aliases
+# Change this default once on VMs where the tools directory lives elsewhere.
+export TOOLS_DIR="${TOOLS_DIR:-/opt/tools}"
+
 # required to sudo an aliased command
 alias sudo='sudo '
 
@@ -9,10 +12,10 @@ alias tmn='tmux new -s'
 
 # binaries
 alias vi='vim'
-alias ngrok='/opt/tools/ngrok'
-alias secretfinder='python3 /opt/tools/SecretFinder/SecretFinder.py'
-alias linkfinder='python3 /opt/tools/LinkFinder/linkfinder.py'
-alias bypassfuzzer='python3 /opt/tools/BypassFuzzer/bypassfuzzer.py'
+alias ngrok='"$TOOLS_DIR"/ngrok'
+alias secretfinder='python3 "$TOOLS_DIR/SecretFinder/SecretFinder.py"'
+alias linkfinder='python3 "$TOOLS_DIR/LinkFinder/linkfinder.py"'
+alias bypassfuzzer='python3 "$TOOLS_DIR/BypassFuzzer/bypassfuzzer.py"'
 
 # ffuf workflows
 _ffuf_scan() {
@@ -68,7 +71,7 @@ ffuf_swagger() {
   fi
 
   local target_input="$1"
-  local wordlist="/opt/tools/wordlists/apis/swagger/all_my_swagger.txt"
+  local wordlist="$TOOLS_DIR/wordlists/apis/swagger/all_my_swagger.txt"
   shift
 
   case "$target_input" in
@@ -103,7 +106,7 @@ ffuf_intrudir() {
   fi
 
   local target_input="$1"
-  local wordlist="/opt/tools/wordlists/contentdiscovery/custom/intrudir.txt"
+  local wordlist="$TOOLS_DIR/wordlists/contentdiscovery/custom/intrudir.txt"
   shift
 
   case "$target_input" in
@@ -138,7 +141,7 @@ ffuf_intrudir_ext() {
   fi
 
   local target_input="$1"
-  local wordlist="/opt/tools/wordlists/contentdiscovery/custom/intrudir.txt"
+  local wordlist="$TOOLS_DIR/wordlists/contentdiscovery/custom/intrudir.txt"
   local extensions=".html,.htm,.json,.old,.bak,.tmp,.conf,.yml,.yaml,.log,.xml,.env,.config"
   shift
 
@@ -219,7 +222,7 @@ ffuf_smart_filter() {
     return 1
   fi
 
-  python3 /opt/tools/FFUF-Smart-Filter/ffuf_smart_filter.py \
+  python3 "$TOOLS_DIR/FFUF-Smart-Filter/ffuf_smart_filter.py" \
     "$input_file" \
     -o "$output_file" \
     --header \
