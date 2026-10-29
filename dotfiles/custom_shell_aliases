@@ -63,48 +63,109 @@ _ffuf_scan() {
 
 ffuf_swagger() {
   if [ "$#" -lt 1 ]; then
-    echo "Usage: ffuf-swagger <url[/FUZZ]> [ffuf options...]" >&2
+    echo "Usage: ffs <url[/FUZZ] | hosts-file> [ffuf options...]" >&2
     return 2
   fi
 
-  local target_url="$1"
+  local target_input="$1"
+  local wordlist="/opt/tools/wordlists/apis/swagger/all_my_swagger.txt"
   shift
-  _ffuf_scan \
-    /opt/tools/wordlists/apis/swagger/all_my_swagger.txt \
-    swagger \
-    "$target_url" \
-    "$@"
+
+  case "$target_input" in
+    http://*|https://*)
+      _ffuf_scan "$wordlist" swagger "$target_input" "$@"
+      ;;
+    *)
+      if [ ! -f "$target_input" ] || [ ! -r "$target_input" ]; then
+        echo "Hosts file is not readable: $target_input" >&2
+        return 1
+      fi
+      if [ ! -r "$wordlist" ]; then
+        echo "Wordlist is not readable: $wordlist" >&2
+        return 1
+      fi
+      command ffuf -c \
+        -w "$target_input:W1" \
+        -w "$wordlist:W2" \
+        -u 'W1/W2' \
+        -of json -o swagger_out.json \
+        -rate 500 \
+        -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
+        "$@"
+      ;;
+  esac
 }
 
 ffuf_intrudir() {
   if [ "$#" -lt 1 ]; then
-    echo "Usage: ffuf-intrudir <url[/FUZZ]> [ffuf options...]" >&2
+    echo "Usage: ffi <url[/FUZZ] | hosts-file> [ffuf options...]" >&2
     return 2
   fi
 
-  local target_url="$1"
+  local target_input="$1"
+  local wordlist="/opt/tools/wordlists/contentdiscovery/custom/intrudir.txt"
   shift
-  _ffuf_scan \
-    /opt/tools/wordlists/contentdiscovery/custom/intrudir.txt \
-    intrudir \
-    "$target_url" \
-    "$@"
+
+  case "$target_input" in
+    http://*|https://*)
+      _ffuf_scan "$wordlist" intrudir "$target_input" "$@"
+      ;;
+    *)
+      if [ ! -f "$target_input" ] || [ ! -r "$target_input" ]; then
+        echo "Hosts file is not readable: $target_input" >&2
+        return 1
+      fi
+      if [ ! -r "$wordlist" ]; then
+        echo "Wordlist is not readable: $wordlist" >&2
+        return 1
+      fi
+      command ffuf -c \
+        -w "$target_input:W1" \
+        -w "$wordlist:W2" \
+        -u 'W1/W2' \
+        -of json -o intrudir_out.json \
+        -rate 500 \
+        -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
+        "$@"
+      ;;
+  esac
 }
 
 ffuf_intrudir_ext() {
   if [ "$#" -lt 1 ]; then
-    echo "Usage: ffuf-intrudir-ext <url[/FUZZ]> [ffuf options...]" >&2
+    echo "Usage: ffie <url[/FUZZ] | hosts-file> [ffuf options...]" >&2
     return 2
   fi
 
-  local target_url="$1"
+  local target_input="$1"
+  local wordlist="/opt/tools/wordlists/contentdiscovery/custom/intrudir.txt"
+  local extensions=".html,.htm,.json,.old,.bak,.tmp,.conf,.yml,.yaml,.log,.xml,.env,.config"
   shift
-  _ffuf_scan \
-    /opt/tools/wordlists/contentdiscovery/custom/intrudir.txt \
-    intrudir_ext \
-    "$target_url" \
-    -e .html,.htm,.json,.old,.bak,.tmp,.conf,.yml,.yaml,.log,.xml,.env,.config \
-    "$@"
+
+  case "$target_input" in
+    http://*|https://*)
+      _ffuf_scan "$wordlist" intrudir_ext "$target_input" -e "$extensions" "$@"
+      ;;
+    *)
+      if [ ! -f "$target_input" ] || [ ! -r "$target_input" ]; then
+        echo "Hosts file is not readable: $target_input" >&2
+        return 1
+      fi
+      if [ ! -r "$wordlist" ]; then
+        echo "Wordlist is not readable: $wordlist" >&2
+        return 1
+      fi
+      command ffuf -c \
+        -w "$target_input:W1" \
+        -w "$wordlist:FUZZ" \
+        -u 'W1/FUZZ' \
+        -e "$extensions" \
+        -of json -o intrudir_ext_out.json \
+        -rate 500 \
+        -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
+        "$@"
+      ;;
+  esac
 }
 
 ffuf_to_tsv() {
