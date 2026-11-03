@@ -18,6 +18,15 @@ alias linkfinder='python3 "$TOOLS_DIR/LinkFinder/linkfinder.py"'
 alias bypassfuzzer='python3 "$TOOLS_DIR/BypassFuzzer/bypassfuzzer.py"'
 
 # ffuf workflows
+_ffuf_run() {
+  if command ffuf -h 2>&1 | grep -q -- '^[[:space:]]*-rate[[:space:]]'; then
+    command ffuf -rate 500 "$@"
+  else
+    echo "Warning: this ffuf version does not support -rate; continuing without rate limiting." >&2
+    command ffuf "$@"
+  fi
+}
+
 _ffuf_scan() {
   if [ "$#" -lt 3 ]; then
     echo "Usage: _ffuf_scan <wordlist> <scan-name> <url> [ffuf options...]" >&2
@@ -53,13 +62,12 @@ _ffuf_scan() {
   echo "ffuf target: $target_url"
   echo "JSON output: $output_file"
 
-  command ffuf \
+  _ffuf_run \
     -c \
     -w "$wordlist" \
     -of json \
     -o "$output_file" \
     -u "$target_url" \
-    -rate 500 \
     -H "User-Agent: $browser_ua" \
     "$@"
 }
@@ -87,12 +95,11 @@ ffuf_swagger() {
         echo "Wordlist is not readable: $wordlist" >&2
         return 1
       fi
-      command ffuf -c \
+      _ffuf_run -c \
         -w "$target_input:W1" \
         -w "$wordlist:W2" \
         -u 'W1/W2' \
         -of json -o swagger_out.json \
-        -rate 500 \
         -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
         "$@"
       ;;
@@ -122,12 +129,11 @@ ffuf_intrudir() {
         echo "Wordlist is not readable: $wordlist" >&2
         return 1
       fi
-      command ffuf -c \
+      _ffuf_run -c \
         -w "$target_input:W1" \
         -w "$wordlist:W2" \
         -u 'W1/W2' \
         -of json -o intrudir_out.json \
-        -rate 500 \
         -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
         "$@"
       ;;
@@ -158,13 +164,12 @@ ffuf_intrudir_ext() {
         echo "Wordlist is not readable: $wordlist" >&2
         return 1
       fi
-      command ffuf -c \
+      _ffuf_run -c \
         -w "$target_input:W1" \
         -w "$wordlist:FUZZ" \
         -u 'W1/FUZZ' \
         -e "$extensions" \
         -of json -o intrudir_ext_out.json \
-        -rate 500 \
         -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
         "$@"
       ;;
