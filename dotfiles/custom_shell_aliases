@@ -140,6 +140,40 @@ ffuf_intrudir() {
   esac
 }
 
+ffuf_salesforce_detect() {
+  if [ "$#" -lt 1 ]; then
+    echo "Usage: ffsfdetect <url[/FUZZ] | hosts-file> [ffuf options...]" >&2
+    return 2
+  fi
+
+  local target_input="$1"
+  local wordlist="$TOOLS_DIR/wordlists/contentdiscovery/salesforce/salesforce-detection.txt"
+  shift
+
+  case "$target_input" in
+    http://*|https://*)
+      _ffuf_scan "$wordlist" salesforce_detect "$target_input" "$@"
+      ;;
+    *)
+      if [ ! -f "$target_input" ] || [ ! -r "$target_input" ]; then
+        echo "Hosts file is not readable: $target_input" >&2
+        return 1
+      fi
+      if [ ! -r "$wordlist" ]; then
+        echo "Wordlist is not readable: $wordlist" >&2
+        return 1
+      fi
+      _ffuf_run -c \
+        -w "$target_input:W1" \
+        -w "$wordlist:W2" \
+        -u 'W1/W2' \
+        -of json -o salesforce_detect_out.json \
+        -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36" \
+        "$@"
+      ;;
+  esac
+}
+
 ffuf_intrudir_ext() {
   if [ "$#" -lt 1 ]; then
     echo "Usage: ffie <url[/FUZZ] | hosts-file> [ffuf options...]" >&2
@@ -236,11 +270,13 @@ ffuf_smart_filter() {
 
 alias ffuf-swagger='ffuf_swagger'
 alias ffuf-intrudir='ffuf_intrudir'
+alias ffuf-salesforce-detect='ffuf_salesforce_detect'
 alias ffuf-intrudir-ext='ffuf_intrudir_ext'
 alias ffuf-to-tsv='ffuf_to_tsv'
 alias ffuf-smart-filter='ffuf_smart_filter'
 alias ffs='ffuf_swagger'
 alias ffi='ffuf_intrudir'
+alias ffsfdetect='ffuf_salesforce_detect'
 alias ffie='ffuf_intrudir_ext'
 alias ff2t='ffuf_to_tsv'
 alias ffsmart='ffuf_smart_filter'
