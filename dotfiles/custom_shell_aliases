@@ -268,6 +268,32 @@ ffuf_smart_filter() {
     --write-header && echo "Filtered TSV output: $output_file"
 }
 
+ffuf_403_seeds() {
+  if [ "$#" -ne 1 ]; then
+    echo "Usage: ff403 <ffuf.json>" >&2
+    return 2
+  fi
+
+  local input_file="$1"
+  local output_file="${input_file%.json}_403.txt"
+  local temp_file
+
+  if [ ! -r "$input_file" ]; then
+    echo "Input is not readable: $input_file" >&2
+    return 1
+  fi
+
+  temp_file="$(mktemp "${output_file}.tmp.XXXXXX")" || return 1
+  if jq -r '.results[] | select(.status == 403) | .url' "$input_file" > "$temp_file" &&
+     LC_ALL=C sort -u -o "$temp_file" "$temp_file" &&
+     mv "$temp_file" "$output_file"; then
+    echo "403 URL list: $output_file ($(wc -l < "$output_file") URLs)"
+  else
+    rm -f "$temp_file"
+    return 1
+  fi
+}
+
 alias ffuf-swagger='ffuf_swagger'
 alias ffuf-intrudir='ffuf_intrudir'
 alias ffuf-salesforce-detect='ffuf_salesforce_detect'
@@ -280,6 +306,8 @@ alias ffsfdetect='ffuf_salesforce_detect'
 alias ffie='ffuf_intrudir_ext'
 alias ff2t='ffuf_to_tsv'
 alias ffsmart='ffuf_smart_filter'
+alias ffuf-403-seeds='ffuf_403_seeds'
+alias ff403='ffuf_403_seeds'
 
 # shortcuts
 alias burl='curl -x 127.0.0.1:8080 -k'
